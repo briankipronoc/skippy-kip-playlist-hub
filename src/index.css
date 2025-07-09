@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Optional: smooth font rendering + body bg */
+body {
+  @apply bg-neutral text-white antialiased;
+}
