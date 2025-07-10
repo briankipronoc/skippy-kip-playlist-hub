@@ -1,8 +1,44 @@
+/* src/index.css */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Optional: smooth font rendering + body bg */
+/*
+  Optional: Add global styles or font imports here.
+  For example, if you want to use Google Fonts:
+*/
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
 body {
-  @apply bg-neutral text-white antialiased;
+  /* Apply default font families if you've imported them */
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/*
+  Custom scrollbar for a sleek look (optional, but nice for dark themes)
+*/
+/* Webkit (Chrome, Safari) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: hsl(var(--b2)); /* DaisyUI base-200 color for track */
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--bc) / 0.5); /* DaisyUI base-content color, semi-transparent */
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--bc)); /* Full opacity on hover */
+}
+
+/* Firefox */
+html {
+  scrollbar-width: thin; /* "auto" or "thin" */
+  scrollbar-color: hsl(var(--bc) / 0.5) hsl(var(--b2)); /* thumb color track color */
 }
