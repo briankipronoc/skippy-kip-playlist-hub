@@ -1,4 +1,4 @@
-// server/app_server.js (formerly index.js)
+// server/index.js
 require('dotenv').config(); // Load environment variables from .env file
 const express = require('express');
 const axios = require('axios');
@@ -13,10 +13,9 @@ const PORT = process.env.PORT || 3001; // Use 3001 for the backend to avoid conf
 const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
 
-// Define the CORRECT Spotify API base URLs
-// These are the REAL Spotify endpoints, NOT the googleusercontent.com placeholders!
-const SPOTIFY_API_BASE_URL = 'https://api.spotify.com/v1'; // Correct Spotify Web API Base URL
-const SPOTIFY_ACCOUNTS_URL = 'https://accounts.spotify.com/api/token'; // Correct Spotify Accounts Service for tokens
+// Define the Spotify API base URL
+const SPOTIFY_API_BASE_URL = 'https://api.spotify.com/v1'; // THIS IS THE REAL SPOTIFY API BASE URL
+const SPOTIFY_ACCOUNTS_URL = 'https://accounts.spotify.com/api/token'; // THIS IS THE REAL SPOTIFY ACCOUNTS URL
 
 let spotifyAccessToken = null;
 let tokenExpiryTime = 0;
@@ -54,7 +53,7 @@ async function getSpotifyAccessToken() {
     // Otherwise, request a new token
     try {
         const response = await axios.post(
-            SPOTIFY_ACCOUNTS_URL, // Use the CORRECT Spotify accounts URL
+            SPOTIFY_ACCOUNTS_URL, // Use the correct Spotify accounts URL
             'grant_type=client_credentials',
             {
                 headers: {
@@ -74,21 +73,22 @@ async function getSpotifyAccessToken() {
 }
 
 // Endpoint to get featured playlists
+   // Endpoint to get featured playlists
 app.get('/api/playlists/featured', async (req, res) => {
     try {
         const accessToken = await getSpotifyAccessToken();
-        // This now correctly uses the SPOTIFY_API_BASE_URL constant
+        // This now uses the constant defined at the top, which should be the real Spotify API base URL
         const requestUrl = `${SPOTIFY_API_BASE_URL}/browse/featured-playlists`;
         const params = {
-            country: 'KE', // Filter for Kenya
+            country: 'KE', // You can change this to your preferred country code (e.g., 'US', 'GB', 'GLOBAL')
             locale: 'en_KE', // English (Kenya) locale
             limit: 20 // Number of playlists to fetch
         };
 
-        // No more (HARDCODED) in the log as it's correctly using constants
+        // Removed "(HARDCODED)" from the log message, as it's no longer hardcoded
         console.log(`Attempting to fetch featured playlists from: ${requestUrl}?${new URLSearchParams(params).toString()}`);
 
-        const response = await axios.get(requestUrl, {
+        const response = await axios.get(requestUrl, { // Using requestUrl, which is built from SPOTIFY_API_BASE_URL
             headers: {
                 'Authorization': `Bearer ${accessToken}`
             },
@@ -96,6 +96,7 @@ app.get('/api/playlists/featured', async (req, res) => {
         });
         res.json(response.data.playlists.items);
     } catch (error) {
+        // More robust error logging/handling (optional for now, but good practice)
         console.error('Error fetching featured playlists:', error.response ? error.response.data : error.message);
         const statusCode = error.response ? error.response.status : 500;
         const errorMessage = error.response && error.response.data && error.response.data.error ?
@@ -110,12 +111,13 @@ app.get('/api/charts/kenyan-top', async (req, res) => {
         const accessToken = await getSpotifyAccessToken();
         // ID for "Top Songs - Kenya" playlist (as of recent check - this ID is stable for now)
         const kenyanTopPlaylistId = '37i9dQZEVXbJ8LPtGkEGGA';
-        const requestUrl = `${SPOTIFY_API_BASE_URL}/playlists/${kenyanTopPlaylistId}/tracks`; // Still using constant here
+        const requestUrl = `${SPOTIFY_API_BASE_URL}/playlists/${kenyanTopPlaylistId}/tracks`;
         const params = {
             fields: 'items(track(id,name,artists(name),album(name,images,release_date),preview_url))',
             limit: 10
         };
 
+        // Construct the full URL with parameters for logging
         const fullLogUrl = `${requestUrl}?${new URLSearchParams(params).toString()}`;
         console.log(`Attempting to fetch Kenyan Top Chart from: ${fullLogUrl}`);
 
@@ -126,7 +128,7 @@ app.get('/api/charts/kenyan-top', async (req, res) => {
             params: params
         });
 
-        const topTracks = response.data.items.map(item => ({
+        const topTracks = response.data.items.map(item => ({ // Access items directly from response.data for playlist tracks
             id: item.track.id,
             title: item.track.name,
             artist: item.track.artists.map(a => a.name).join(', '),
